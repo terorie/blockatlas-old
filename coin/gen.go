@@ -11,23 +11,25 @@ import (
 	"time"
 )
 
-type Coin struct {
-	Index uint `json:"index"`
-}
-
 func main() {
-	coin.Load("../coins.yml")
+	coins, err := coin.Load("coins.yml")
+	if err != nil {
+		panic(err)
+	}
 
-	f, err := os.Create("slip44.go")
+	f, err := os.Create("list.go")
 	if err != nil {
 		panic(err)
 	}
 	defer f.Close()
 
-	slip44Template.Execute(f, map[string]interface{}{
+	err = slip44Template.Execute(f, map[string]interface{}{
 		"Timestamp": time.Now(),
-		"Coins": coin.Coins,
+		"Coins": coins,
 	})
+	if err != nil {
+		panic(err)
+	}
 }
 
 var slip44Template = template.Must(template.New("").Parse(
@@ -39,7 +41,28 @@ package coin
 
 const (
 {{- range .Coins }}
-	{{ .Symbol }} = {{ .ID }}
+	{{ .Symbol }} = "{{ .Handle }}"
 {{- end }}
 )
+
+var Coins = map[string]Coin{
+{{- range .Coins }}
+	"{{ .Handle }}": {
+		ID: {{ .ID }},
+		Handle: "{{ .Handle }}",
+		Symbol: "{{ .Symbol }}",
+		Title: "{{ .Title }}",
+		Decimals: {{ .Decimals }},
+		{{- if .BlockTime }}
+		BlockTime: {{ .BlockTime }},
+		{{- end }}
+		{{- if .SampleAddr }}
+		SampleAddr: "{{ .SampleAddr }}",
+		{{- end }}
+		{{- if .SampleToken }}
+		SampleToken: "{{ .SampleToken }}",
+		{{- end }}
+	},
+{{- end }}
+}
 `))

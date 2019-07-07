@@ -45,7 +45,7 @@ func (p *Platform) GetTxsByAddress(address string) (blockatlas.TxPage, error) {
 func NormalizeTx(srcTx *Tx) blockatlas.Tx {
 	return blockatlas.Tx{
 		ID:    srcTx.Hash,
-		Coin:  coin.NIM,
+		Coin:  coin.Coins[coin.NIM].ID,
 		Date:  srcTx.Timestamp,
 		From:  srcTx.FromAddress,
 		To:    srcTx.ToAddress,

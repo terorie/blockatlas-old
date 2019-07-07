@@ -5,52 +5,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/trustwallet/blockatlas"
-	"github.com/trustwallet/blockatlas/coin"
-	"github.com/trustwallet/blockatlas/platform/aion"
-	"github.com/trustwallet/blockatlas/platform/binance"
-	"github.com/trustwallet/blockatlas/platform/cosmos"
-	"github.com/trustwallet/blockatlas/platform/ethereum"
-	"github.com/trustwallet/blockatlas/platform/icon"
-	"github.com/trustwallet/blockatlas/platform/iotex"
 	"github.com/trustwallet/blockatlas/platform/nimiq"
-	"github.com/trustwallet/blockatlas/platform/ontology"
-	"github.com/trustwallet/blockatlas/platform/ripple"
-	"github.com/trustwallet/blockatlas/platform/semux"
-	"github.com/trustwallet/blockatlas/platform/stellar"
-	"github.com/trustwallet/blockatlas/platform/tezos"
-	"github.com/trustwallet/blockatlas/platform/theta"
-	"github.com/trustwallet/blockatlas/platform/tron"
-	"github.com/trustwallet/blockatlas/platform/vechain"
-	"github.com/trustwallet/blockatlas/platform/waves"
-	"github.com/trustwallet/blockatlas/platform/zilliqa"
 )
 
 var platformList = []blockatlas.Platform{
-	&binance.Platform{},
 	&nimiq.Platform{},
-	&ripple.Platform{},
-	&stellar.Platform{ CoinIndex: coin.XLM },
-	&stellar.Platform{ CoinIndex: coin.KIN },
-	&ethereum.Platform{ CoinIndex: coin.ETH  },
-	&ethereum.Platform{ CoinIndex: coin.ETC  },
-	&ethereum.Platform{ CoinIndex: coin.POA  },
-	&ethereum.Platform{ CoinIndex: coin.CLO  },
-	&ethereum.Platform{ CoinIndex: coin.GO   },
-	&ethereum.Platform{ CoinIndex: coin.WAN  },
-	&ethereum.Platform{ CoinIndex: coin.TOMO },
-	&ethereum.Platform{ CoinIndex: coin.TT   },
-	&tezos.Platform{},
-	&aion.Platform{},
-	&cosmos.Platform{},
-	&icon.Platform{},
-	&iotex.Platform{},
-	&ontology.Platform{},
-	&semux.Platform{},
-	&theta.Platform{},
-	&tron.Platform{},
-	&vechain.Platform{},
-	&zilliqa.Platform{},
-	&waves.Platform{},
 }
 
 // Platforms contains all registered platforms by handle

@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/viper"
 	"github.com/trustwallet/blockatlas/cmd/api"
 	"github.com/trustwallet/blockatlas/cmd/observer"
-	"github.com/trustwallet/blockatlas/coin"
 	observerStorage "github.com/trustwallet/blockatlas/observer/storage"
 	"github.com/trustwallet/blockatlas/platform"
 	"os"
@@ -20,10 +19,6 @@ var app = cobra.Command{
 		// Load config
 		confPath, _ := cmd.Flags().GetString("config")
 		loadConfig(confPath)
-
-		// Load coin index
-		coinFile := viper.GetString("coins")
-		coin.Load(coinFile)
 
 		// Load app components
 		platform.Init()

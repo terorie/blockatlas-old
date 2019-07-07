@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/viper"
 	observerStorage "github.com/trustwallet/blockatlas/observer/storage"
 	"github.com/trustwallet/blockatlas/util"
-	"net/http"
 )
 
 var Cmd = cobra.Command{
@@ -31,11 +30,6 @@ func run(_ *cobra.Command, args []string) {
 	engine = gin.Default()
 	engine.Use(util.CheckReverseProxy)
 	engine.GET("/", getRoot)
-	engine.GET("/status", func(c *gin.Context) {
-		c.JSON(http.StatusOK, map[string]interface{}{
-			"status": true,
-		})
-	})
 
 	loadPlatforms(engine)
 	if observerStorage.App != nil {

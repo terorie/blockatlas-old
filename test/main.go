@@ -47,7 +47,10 @@ func main() {
 }
 
 func run(_ *cobra.Command, args []string) {
-	coin.Load(coinFile)
+	coins, err := coin.Load(coinFile)
+	if err != nil {
+		logrus.Fatal(err)
+	}
 
 	baseURL = args[0]
 
@@ -72,7 +75,7 @@ func run(_ *cobra.Command, args []string) {
 
 	var tests []coin.Coin
 
-	for _, c := range coin.Coins {
+	for _, c := range coins {
 		if !supported[c.Handle] {
 			if requireAll {
 				log(&c).Error("Platform not enabled at server but required")
