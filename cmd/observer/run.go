@@ -5,6 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/trustwallet/blockatlas"
 	"github.com/trustwallet/blockatlas/observer"
 	observerStorage "github.com/trustwallet/blockatlas/observer/storage"
 	"github.com/trustwallet/blockatlas/platform"
@@ -24,7 +25,15 @@ func run(_ *cobra.Command, _ []string) {
 		logrus.Fatal("Observer is not enabled")
 	}
 
-	if len(platform.BlockAPIs) == 0 {
+	var blockAPIs []blockatlas.BlockAPI
+	for _, api := range platform.Platforms {
+		if blockAPI, ok := api.(blockatlas.BlockAPI); ok {
+			blockAPIs = append(blockAPIs, blockAPI)
+		}
+	}
+
+
+	if len(blockAPIs) == 0 {
 		logrus.Fatal("No APIs to observe")
 	}
 
@@ -32,8 +41,8 @@ func run(_ *cobra.Command, _ []string) {
 	backlogTime := viper.GetDuration("observer.backlog")
 
 	var wg sync.WaitGroup
-	wg.Add(len(platform.BlockAPIs))
-	for _, api := range platform.BlockAPIs {
+	wg.Add(len(blockAPIs))
+	for _, api := range blockAPIs {
 		coin := api.Coin()
 		blockTime := time.Duration(coin.BlockTime) * time.Millisecond
 		pollInterval := blockTime / 4

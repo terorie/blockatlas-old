@@ -15,24 +15,13 @@ var platformList = []blockatlas.Platform{
 // Platforms contains all registered platforms by handle
 var Platforms map[string]blockatlas.Platform
 
-// BlockAPIs contains platforms with block services
-var BlockAPIs map[string]blockatlas.BlockAPI
-
-// CustomAPIs contains platforms with custom HTTP services
-var CustomAPIs map[string]blockatlas.CustomAPI
-
 func Init() {
-	Platforms  = make(map[string]blockatlas.Platform)
-	BlockAPIs  = make(map[string]blockatlas.BlockAPI)
-	CustomAPIs = make(map[string]blockatlas.CustomAPI)
+	Platforms = make(map[string]blockatlas.Platform)
 
 	for _, platform := range platformList {
 		handle := platform.Coin().Handle
 		apiKey := fmt.Sprintf("%s.api", handle)
 
-		if !viper.IsSet(apiKey) {
-			continue
-		}
 		if viper.GetString(apiKey) == "" {
 			continue
 		}
@@ -52,12 +41,5 @@ func Init() {
 		}
 
 		Platforms[handle] = platform
-
-		if blockAPI, ok := platform.(blockatlas.BlockAPI); ok {
-			BlockAPIs[handle] = blockAPI
-		}
-		if customAPI, ok := platform.(blockatlas.CustomAPI); ok {
-			CustomAPIs[handle] = customAPI
-		}
 	}
 }

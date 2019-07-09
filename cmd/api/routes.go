@@ -4,27 +4,34 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"github.com/trustwallet/blockatlas"
 	"github.com/trustwallet/blockatlas/platform"
 )
 
 var routers = make(map[string]gin.IRouter)
 
 func loadPlatforms(root gin.IRouter) {
-	v1 := root.Group("/v1")
-
-	for _, txAPI := range platform.Platforms {
-		router := getRouter(v1, txAPI.Coin().Handle)
-		makeTxRoute(router, txAPI)
-	}
-	for _, customAPI := range platform.CustomAPIs {
-		router := getRouter(v1, customAPI.Coin().Handle)
-		customAPI.RegisterRoutes(router)
+	v2 := root.Group("/v2")
+	for handle, p := range platform.Platforms {
+		loadPlatform(v2, handle, p)
 	}
 
 	logrus.WithField("routes", len(routers)).
 		Info("Routes set up")
 
-	v1.GET("/", getEnabledEndpoints)
+	v2.GET("/", getEnabledEndpoints)
+}
+
+func loadPlatform(g gin.IRouter, handle string, p blockatlas.Platform) {
+	if customAPI, ok := p.(blockatlas.CustomAPI); ok {
+		customAPI.RegisterRoutes(getRouter(g, handle))
+	}
+	if txAPI, ok := p.(blockatlas.TxAPI); ok {
+		makeTxRoute(getRouter(g, handle), txAPI)
+	}
+	if tokenTxAPI, ok := p.(blockatlas.TokenTxAPI); ok {
+		makeTokenTxRoute(getRouter(g, handle), tokenTxAPI)
+	}
 }
 
 // getRouter lazy loads routers

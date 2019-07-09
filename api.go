@@ -22,6 +22,11 @@ type TxAPI interface {
 	GetTxsByAddress(address string) (TxPage, error)
 }
 
+type BalanceAPI interface {
+	Platform
+	GetBalance(address string) (Amount, error)
+}
+
 // TokenTxAPI provides token transaction lookups
 type TokenTxAPI interface {
 	Platform

@@ -6,52 +6,57 @@ import (
 	"net/http"
 )
 
-func makeTxRoute(router gin.IRouter, api blockatlas.Platform) {
-	var txAPI blockatlas.TxAPI
-	var tokenTxAPI blockatlas.TokenTxAPI
-	txAPI, _ = api.(blockatlas.TxAPI)
-	tokenTxAPI, _ = api.(blockatlas.TokenTxAPI)
-
-	if txAPI == nil && tokenTxAPI == nil {
-		return
-	}
-
-	router.GET("/:address", func(c *gin.Context) {
+func makeTxRoute(router gin.IRouter, api blockatlas.TxAPI) {
+	router.GET("/:address/txs", func(c *gin.Context) {
 		address := c.Param("address")
 		if address == "" {
-			c.String(http.StatusNoContent, "no content")
-			return
-		}
-		token := c.Query("token")
-
-		var page blockatlas.TxPage
-		var err error
-		switch {
-		case token == "" && txAPI != nil:
-			page, err = txAPI.GetTxsByAddress(address)
-		case token != "" && tokenTxAPI != nil:
-			page, err = tokenTxAPI.GetTokenTxsByAddress(address, token)
-		default:
-			c.String(http.StatusNoContent, "no content")
+			c.String(http.StatusBadRequest, "bad request")
 			return
 		}
 
-		switch {
-		case err == blockatlas.ErrInvalidAddr:
-			c.String(http.StatusBadRequest, "Invalid address")
-			return
-		case err == blockatlas.ErrNotFound:
-			c.String(http.StatusNotFound, "No such address")
-			return
-		case err == blockatlas.ErrSourceConn:
-			c.String(http.StatusServiceUnavailable, "Lost connection to blockchain")
-			return
-		case err != nil:
-			_ = c.AbortWithError(http.StatusInternalServerError, err)
+		page, err := api.GetTxsByAddress(address)
+		if !handleError(c, err) {
 			return
 		}
 
 		page.Sort()
 		c.JSON(http.StatusOK, &page)
 	})
+}
+
+func makeTokenTxRoute(router gin.IRouter, api blockatlas.TokenTxAPI) {
+	router.GET("/:address/token/:token/txs", func(c *gin.Context) {
+		address := c.Param("address")
+		token := c.Param("token")
+		if address == "" || token == "" {
+			c.String(http.StatusBadRequest, "bad request")
+			return
+		}
+
+		page, err := api.GetTokenTxsByAddress(address, token)
+		if !handleError(c, err) {
+			return
+		}
+
+		page.Sort()
+		c.JSON(http.StatusOK, &page)
+	})
+}
+
+func handleError(c *gin.Context, err error) bool {
+	switch {
+	case err == blockatlas.ErrInvalidAddr:
+		c.String(http.StatusBadRequest, "Invalid address")
+		return false
+	case err == blockatlas.ErrNotFound:
+		c.String(http.StatusNotFound, "No such address")
+		return false
+	case err == blockatlas.ErrSourceConn:
+		c.String(http.StatusServiceUnavailable, "Lost connection to blockchain")
+		return false
+	case err != nil:
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return false
+	}
+	return true
 }
